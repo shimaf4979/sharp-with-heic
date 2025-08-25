@@ -13,9 +13,9 @@ phases:
       - dnf -y install gcc gcc-c++ make cmake autoconf automake libtool git tar xz
       - dnf -y install zlib-devel glib2-devel expat-devel libjpeg-turbo-devel
       - dnf -y install libpng-devel libtiff-devel giflib-devel libwebp-devel
-      - dnf -y install openssl-devel nasm which pkgconfig meson ninja-build wget zip
+      - dnf -y install openssl-devel pkgconfig meson ninja-build wget zip
       - dnf -y install libexif-devel libxml2-devel gobject-introspection-devel
-      - dnf -y install fftw-devel lcms2-devel python3-pip yasm
+      - dnf -y install fftw-devel lcms2-devel
 
   pre_build:
     commands:
@@ -67,7 +67,6 @@ phases:
       - cp /usr/lib64/libpng* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libtiff* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libwebp* /opt/lib/ 2>/dev/null || true
-      - cp /usr/lib64/libgif* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libexif* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libxml2* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libglib* /opt/lib/ 2>/dev/null || true

@@ -1,0 +1,95 @@
+version: 0.2
+
+env:
+  variables:
+    S3_BUCKET: "sharp-with-heic"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - dnf -y update
+      - dnf -y install gcc gcc-c++ make cmake autoconf automake libtool git tar xz
+      - dnf -y install zlib-devel glib2-devel expat-devel libjpeg-turbo-devel
+      - dnf -y install libpng-devel libtiff-devel giflib-devel libwebp-devel
+      - dnf -y install openssl-devel nasm which pkgconfig meson ninja-build wget zip
+      - dnf -y install libexif-devel libxml2-devel gobject-introspection-devel
+      - dnf -y install fftw-devel lcms2-devel python3-pip
+
+  pre_build:
+    commands:
+      - export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig:/usr/lib64/pkgconfig
+      - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/usr/lib64
+
+      # libde265
+      - cd /tmp
+      - git clone --depth 1 --branch v1.0.15 https://github.com/strukturag/libde265.git
+      - cd libde265 && mkdir build && cd build
+      - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_DECODER=ON -DENABLE_ENCODER=OFF
+      - make -j$(nproc) && make install && ldconfig
+
+      # libheif
+      - cd /tmp
+      - git clone --depth 1 --branch v1.17.6 https://github.com/strukturag/libheif.git
+      - cd libheif && mkdir build && cd build
+      - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DWITH_EXAMPLES=OFF -DWITH_TESTS=OFF -DWITH_LIBDE265=ON
+      - make -j$(nproc) && make install && ldconfig
+
+      # libvips
+      - cd /tmp
+      - git clone --depth 1 --branch v8.15.2 https://github.com/libvips/libvips.git
+      - cd libvips
+      - meson setup builddir --prefix=/usr/local --buildtype=plain -Dmodules=disabled -Dintrospection=disabled -Dcpp=false -Ddeprecated=false -Dexamples=false -Dtests=false -Ddoc=false
+      - cd builddir && ninja -j$(nproc) && ninja install && ldconfig
+
+  build:
+    commands:
+      # Layer構造作成
+      - mkdir -p /opt/nodejs/node_modules
+      - mkdir -p /opt/lib
+
+      # Sharp インストール（ソースからビルド）
+      - cd /opt/nodejs
+      - export npm_config_sharp_libvips_local_prebuilds="/tmp"
+      - export npm_config_sharp_libvips_global_prebuilds="/tmp"
+      - npm install --build-from-source --sharp-libvips-use-global-prebuilds=false sharp@0.33.2
+
+      # 必要なライブラリをコピー
+      - cp -r /usr/local/lib* /opt/lib/
+      - cp /usr/lib64/libjpeg* /opt/lib/ 2>/dev/null || true
+      - cp /usr/lib64/libpng* /opt/lib/ 2>/dev/null || true
+      - cp /usr/lib64/libtiff* /opt/lib/ 2>/dev/null || true
+      - cp /usr/lib64/libwebp* /opt/lib/ 2>/dev/null || true
+      - cp /usr/lib64/libgif* /opt/lib/ 2>/dev/null || true
+      - cp /usr/lib64/libexif* /opt/lib/ 2>/dev/null || true
+      - cp /usr/lib64/libxml2* /opt/lib/ 2>/dev/null || true
+      - cp /usr/lib64/libglib* /opt/lib/ 2>/dev/null || true
+      - cp /usr/lib64/libgobject* /opt/lib/ 2>/dev/null || true
+      - cp /usr/lib64/libgio* /opt/lib/ 2>/dev/null || true
+      - cp /usr/lib64/libgmodule* /opt/lib/ 2>/dev/null || true
+      - cp /usr/lib64/libfftw* /opt/lib/ 2>/dev/null || true
+      - cp /usr/lib64/liblcms* /opt/lib/ 2>/dev/null || true
+      - cp /usr/lib64/libgomp* /opt/lib/ 2>/dev/null || true
+
+      # 不要ファイル削除
+      - find /opt/lib -name "*.la" -delete
+      - find /opt/lib -name "*.a" -delete
+
+      # ZIP作成
+      - cd /opt && zip -r sharp-layer.zip nodejs lib
+      - ls -la sharp-layer.zip
+      - du -h sharp-layer.zip
+
+  post_build:
+    commands:
+      # S3アップロード
+      - TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+      - aws s3 cp /opt/sharp-layer.zip s3://$S3_BUCKET/sharp-layer-${TIMESTAMP}.zip
+      - aws s3 cp /opt/sharp-layer.zip s3://$S3_BUCKET/sharp-layer-latest.zip
+      - echo "Layer uploaded to s3://$S3_BUCKET/"
+
+artifacts:
+  files:
+    - /opt/sharp-layer.zip
+  name: sharp-layer-$CODEBUILD_BUILD_NUMBER

@@ -15,7 +15,7 @@ phases:
       - dnf -y install libpng-devel libtiff-devel giflib-devel libwebp-devel
       - dnf -y install openssl-devel nasm which pkgconfig meson ninja-build wget zip
       - dnf -y install libexif-devel libxml2-devel gobject-introspection-devel
-      - dnf -y install fftw-devel lcms2-devel python3-pip
+      - dnf -y install fftw-devel lcms2-devel python3-pip yasm
 
   pre_build:
     commands:
@@ -29,11 +29,17 @@ phases:
       - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_DECODER=ON -DENABLE_ENCODER=OFF
       - make -j$(nproc) && make install && ldconfig
 
-      # libheif
+      # x265 (HEVCエンコーダー/デコーダー)
+      - cd /tmp
+      - git clone --depth 1 --branch 3.5 https://bitbucket.org/multicoreware/x265_git.git
+      - cd x265_git/build/linux && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_SHARED=ON ../../source
+      - make -j$(nproc) && make install && ldconfig
+
+      # libheif (x265サポート付き)
       - cd /tmp
       - git clone --depth 1 --branch v1.17.6 https://github.com/strukturag/libheif.git
       - cd libheif && mkdir build && cd build
-      - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DWITH_EXAMPLES=OFF -DWITH_TESTS=OFF -DWITH_LIBDE265=ON
+      - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DWITH_EXAMPLES=OFF -DWITH_TESTS=OFF -DWITH_LIBDE265=ON -DWITH_X265=ON -DWITH_LIBSHARPYUV=OFF
       - make -j$(nproc) && make install && ldconfig
 
       # libvips

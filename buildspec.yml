@@ -12,7 +12,7 @@ phases:
       - dnf -y update
       - dnf -y install gcc gcc-c++ make cmake autoconf automake libtool git tar xz
       - dnf -y install zlib-devel glib2-devel expat-devel libjpeg-turbo-devel
-      - dnf -y install libpng-devel libtiff-devel giflib-devel libwebp-devel
+      - dnf -y install libpng-devel libtiff-devel libwebp-devel
       - dnf -y install openssl-devel pkgconfig meson ninja-build wget zip
       - dnf -y install libexif-devel libxml2-devel gobject-introspection-devel
       - dnf -y install fftw-devel lcms2-devel
@@ -29,13 +29,13 @@ phases:
       - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_DECODER=ON -DENABLE_ENCODER=OFF
       - make -j$(nproc) && make install && ldconfig
 
-      # x265 (HEVCエンコーダー/デコーダー)
+      # x265
       - cd /tmp
       - git clone --depth 1 --branch 3.5 https://bitbucket.org/multicoreware/x265_git.git
       - cd x265_git/build/linux && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_SHARED=ON ../../source
       - make -j$(nproc) && make install && ldconfig
 
-      # libheif (x265サポート付き)
+      # libheif
       - cd /tmp
       - git clone --depth 1 --branch v1.17.6 https://github.com/strukturag/libheif.git
       - cd libheif && mkdir build && cd build
@@ -51,17 +51,17 @@ phases:
 
   build:
     commands:
-      # Layer構造作成
+      # Layer構造
       - mkdir -p /opt/nodejs/node_modules
       - mkdir -p /opt/lib
 
-      # Sharp インストール（ソースからビルド）
+      # Sharp インストール
       - cd /opt/nodejs
       - export npm_config_sharp_libvips_local_prebuilds="/tmp"
       - export npm_config_sharp_libvips_global_prebuilds="/tmp"
       - npm install --build-from-source --sharp-libvips-use-global-prebuilds=false sharp@0.33.2
 
-      # 必要なライブラリをコピー
+      # 必要な共有ライブラリコピー
       - cp -r /usr/local/lib* /opt/lib/
       - cp /usr/lib64/libjpeg* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libpng* /opt/lib/ 2>/dev/null || true
@@ -77,9 +77,13 @@ phases:
       - cp /usr/lib64/liblcms* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libgomp* /opt/lib/ 2>/dev/null || true
 
-      # 不要ファイル削除
-      - find /opt/lib -name "*.la" -delete
+      # 不要ファイル削除（静的ライブラリ・開発ファイル）
       - find /opt/lib -name "*.a" -delete
+      - find /opt/lib -name "*.la" -delete
+      - find /opt/lib -name "*.pc" -delete
+      - rm -rf /opt/include || true
+      - rm -rf /opt/lib/pkgconfig || true
+      - rm -rf /opt/lib/cmake || true
 
       # ZIP作成
       - cd /opt && zip -r sharp-layer.zip nodejs lib
@@ -88,7 +92,6 @@ phases:
 
   post_build:
     commands:
-      # S3アップロード
       - TIMESTAMP=$(date +%Y%m%d-%H%M%S)
       - aws s3 cp /opt/sharp-layer.zip s3://$S3_BUCKET/sharp-layer-${TIMESTAMP}.zip
       - aws s3 cp /opt/sharp-layer.zip s3://$S3_BUCKET/sharp-layer-latest.zip

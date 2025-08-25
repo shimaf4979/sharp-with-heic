@@ -24,27 +24,27 @@ phases:
 
       # libde265
       - cd /tmp
-      - git clone --depth 1 --branch v1.0.15 https://github.com/strukturag/libde265.git
+      - git clone --depth 1 --branch v1.0.16 https://github.com/strukturag/libde265.git
       - cd libde265 && mkdir build && cd build
       - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_DECODER=ON -DENABLE_ENCODER=OFF
       - make -j$(nproc) && make install && ldconfig
 
       # x265
       - cd /tmp
-      - git clone --depth 1 --branch 3.5 https://bitbucket.org/multicoreware/x265_git.git
+      - git clone --depth 1 --branch 3.6 https://bitbucket.org/multicoreware/x265_git.git
       - cd x265_git/build/linux && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_SHARED=ON ../../source
       - make -j$(nproc) && make install && ldconfig
 
       # libheif
       - cd /tmp
-      - git clone --depth 1 --branch v1.17.6 https://github.com/strukturag/libheif.git
+      - git clone --depth 1 --branch v1.20.1 https://github.com/strukturag/libheif.git
       - cd libheif && mkdir build && cd build
       - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DWITH_EXAMPLES=OFF -DWITH_TESTS=OFF -DWITH_LIBDE265=ON -DWITH_X265=ON -DWITH_LIBSHARPYUV=OFF
       - make -j$(nproc) && make install && ldconfig
 
       # libvips
       - cd /tmp
-      - git clone --depth 1 --branch v8.15.2 https://github.com/libvips/libvips.git
+      - git clone --depth 1 --branch v8.17.1 https://github.com/libvips/libvips.git
       - cd libvips
       - meson setup builddir --prefix=/usr/local --buildtype=plain -Dmodules=disabled -Dintrospection=disabled -Dcpp=false -Ddeprecated=false -Dexamples=false -Dtests=false -Ddoc=false
       - cd builddir && ninja -j$(nproc) && ninja install && ldconfig
@@ -59,7 +59,7 @@ phases:
       - cd /opt/nodejs
       - export npm_config_sharp_libvips_local_prebuilds="/tmp"
       - export npm_config_sharp_libvips_global_prebuilds="/tmp"
-      - npm install --build-from-source --sharp-libvips-use-global-prebuilds=false sharp@0.30.4
+      - npm install --build-from-source --sharp-libvips-use-global-prebuilds=false sharp@0.34.3
 
       # 必要な共有ライブラリコピー
       - cp -r /usr/local/lib* /opt/lib/

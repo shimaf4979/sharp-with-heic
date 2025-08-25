@@ -72,7 +72,6 @@ phases:
       - cp -r /usr/local/lib* /opt/lib/
       - cp /usr/lib64/libjpeg* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libpng* /opt/lib/ 2>/dev/null || true
-      - cp /usr/lib64/libtiff* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libwebp* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libexif* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libxml2* /opt/lib/ 2>/dev/null || true
@@ -80,6 +79,7 @@ phases:
       - cp /usr/lib64/libgobject* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libgio* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libgmodule* /opt/lib/ 2>/dev/null || true
+      # - cp /usr/lib64/libtiff* /opt/lib/ 2>/dev/null || true
       # - cp /usr/lib64/libfftw* /opt/lib/ 2>/dev/null || true
       # - cp /usr/lib64/liblcms* /opt/lib/ 2>/dev/null || true
       # - cp /usr/lib64/libgomp* /opt/lib/ 2>/dev/null || true

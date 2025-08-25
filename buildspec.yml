@@ -35,11 +35,18 @@ phases:
       - cd x265_git/build/linux && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_SHARED=ON ../../source
       - make -j$(nproc) && make install && ldconfig
 
+      # libaom (AV1 codec for AVIF)
+      - cd /tmp
+      - git clone --depth 1 --branch v3.7.0 https://aomedia.googlesource.com/aom
+      - cd aom && mkdir build && cd build
+      - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_SHARED=ON -DENABLE_STATIC=ON
+      - make -j$(nproc) && make install && ldconfig
+
       # libheif
       - cd /tmp
       - git clone --depth 1 --branch v1.20.1 https://github.com/strukturag/libheif.git
       - cd libheif && mkdir build && cd build
-      - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DWITH_EXAMPLES=OFF -DWITH_TESTS=OFF -DWITH_LIBDE265=ON -DWITH_X265=ON -DWITH_LIBSHARPYUV=OFF
+      - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DWITH_EXAMPLES=OFF -DWITH_TESTS=OFF -DWITH_LIBDE265=ON -DWITH_X265=ON -DWITH_AOM_ENCODER=ON -DWITH_AOM_DECODER=ON -DWITH_LIBSHARPYUV=OFF
       - make -j$(nproc) && make install && ldconfig
 
       # libvips

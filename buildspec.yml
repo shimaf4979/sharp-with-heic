@@ -73,9 +73,9 @@ phases:
       - cp /usr/lib64/libgobject* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libgio* /opt/lib/ 2>/dev/null || true
       - cp /usr/lib64/libgmodule* /opt/lib/ 2>/dev/null || true
-      - cp /usr/lib64/libfftw* /opt/lib/ 2>/dev/null || true
-      - cp /usr/lib64/liblcms* /opt/lib/ 2>/dev/null || true
-      - cp /usr/lib64/libgomp* /opt/lib/ 2>/dev/null || true
+      # - cp /usr/lib64/libfftw* /opt/lib/ 2>/dev/null || true
+      # - cp /usr/lib64/liblcms* /opt/lib/ 2>/dev/null || true
+      # - cp /usr/lib64/libgomp* /opt/lib/ 2>/dev/null || true
 
       # 不要ファイル削除（静的ライブラリ・開発ファイル）
       - find /opt/lib -name "*.a" -delete

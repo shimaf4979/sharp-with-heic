@@ -12,10 +12,10 @@ phases:
       - dnf -y update
       - dnf -y install gcc gcc-c++ make cmake autoconf automake libtool git tar xz
       - dnf -y install zlib-devel glib2-devel expat-devel libjpeg-turbo-devel
-      - dnf -y install libpng-devel libtiff-devel libwebp-devel
+      - dnf -y install libpng-devel  libwebp-devel
       - dnf -y install openssl-devel pkgconfig meson ninja-build wget zip
       - dnf -y install libexif-devel libxml2-devel gobject-introspection-devel
-      - dnf -y install fftw-devel lcms2-devel
+      # - dnf -y install fftw-devel lcms2-devel
 
   pre_build:
     commands:

@@ -59,7 +59,7 @@ phases:
       - cd /opt/nodejs
       - export npm_config_sharp_libvips_local_prebuilds="/tmp"
       - export npm_config_sharp_libvips_global_prebuilds="/tmp"
-      - npm install --build-from-source --sharp-libvips-use-global-prebuilds=false sharp@0.33.2
+      - npm install --build-from-source --sharp-libvips-use-global-prebuilds=false sharp@0.30.4
 
       # 必要な共有ライブラリコピー
       - cp -r /usr/local/lib* /opt/lib/

@@ -38,7 +38,7 @@ phases:
       # libaom (AV1 codec for AVIF)
       - cd /tmp
       - git clone --depth 1 --branch v3.7.0 https://aomedia.googlesource.com/aom
-      - cd aom && mkdir build && cd build
+      - cd aom && mkdir -p build && cd build
       - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_SHARED=ON -DENABLE_STATIC=ON
       - make -j$(nproc) && make install && ldconfig
 
